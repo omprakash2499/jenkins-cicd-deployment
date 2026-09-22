@@ -59,6 +59,7 @@ exit 1
     stage('Publish immutable image') {
       when { expression { params.DEPLOY } }
       steps {
+        withCredentials([usernamePassword(credentialsId: 'aws-incident-deployer', usernameVariable: 'AWS_ACCESS_KEY_ID', passwordVariable: 'AWS_SECRET_ACCESS_KEY')]) {
         sh '''#!/bin/bash
 set -euo pipefail
 mkdir -p "$DOCKER_CONFIG"
@@ -71,6 +72,7 @@ digest=$(aws ecr describe-images --region "$AWS_REGION" --repository-name "$repo
 printf '%s@%s' "$ECR_URL" "$digest" > image.txt
 '''
         script { env.DEPLOY_IMAGE = readFile('image.txt').trim() }
+        }
       }
     }
     stage('Approve release') {
@@ -83,7 +85,11 @@ printf '%s@%s' "$ECR_URL" "$digest" > image.txt
     }
     stage('Deploy and verify') {
       when { expression { params.DEPLOY } }
-      steps { sh 'python3 scripts/deploy.py' }
+      steps {
+        withCredentials([usernamePassword(credentialsId: 'aws-incident-deployer', usernameVariable: 'AWS_ACCESS_KEY_ID', passwordVariable: 'AWS_SECRET_ACCESS_KEY')]) {
+          sh 'python3 scripts/deploy.py'
+        }
+      }
     }
   }
   post {
