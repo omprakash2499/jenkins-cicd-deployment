@@ -50,7 +50,18 @@ from build #3. Build #4 is evidenced by its summary, console and archived-artifa
 screenshots; direct runtime behavior is shown in the EC2 screenshot.
 
 Not yet verified: failed-release rollback, automatic restoration after a failed
-switch, AWS container replacement/reboot persistence, backup/restore, or cloud
-resource cleanup. The successful incident readback does not prove restart persistence.
+switch, AWS container replacement/reboot persistence, backup/restore, or deletion of the separately created deployment credentials. The successful incident readback does not prove restart persistence.
 The deployment uses a single EC2 host and may incur a short outage during replacement.
 No availability or cost-reduction measurements are claimed.
+
+## Terraform cleanup verified
+
+After emptying the ECR repository, the saved destroy plan was applied successfully:
+`Apply complete! Resources: 0 added, 0 changed, 12 destroyed.`
+The EC2 instance, ECR repository, project networking, and Terraform-managed host IAM
+resources were destroyed. The demo database was on the deleted instance volume.
+Deletion of the separately created Jenkins IAM access key and Jenkins credential
+has not yet been confirmed. This is project cleanup evidence, not an account-wide
+billing or resource audit.
+
+![Terraform cleanup](screenshots/12-terraform-cleanup.png)

@@ -7,7 +7,8 @@ Maintainer: Omprakash Kasaraneni.
 **Status:** Jenkins build #4 passed nine application tests, built and smoke-tested
 the image, published to ECR, and deployed a healthy release to EC2 through SSM
 after manual approval. Direct API health, create and list checks passed on EC2.
-Rollback and cleanup verification remain pending.
+Terraform cleanup completed: all 12 managed resources were destroyed after verification.
+The demo is no longer live. Rollback testing and credential deletion verification remain pending.
 
 ## Prerequisites
 

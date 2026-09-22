@@ -30,3 +30,7 @@ missing numbers represent screenshots that were not supplied.
 ## Healthy EC2 container and API create/list checks
 
 ![Healthy EC2 container and API create/list checks](11-ec2-api-verification.png)
+
+## Terraform cleanup
+
+![Twelve Terraform-managed resources destroyed](12-terraform-cleanup.png)
