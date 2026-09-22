@@ -4,15 +4,23 @@ Builds a chosen application commit, runs unit and container smoke tests,
 publishes an immutable ECR tag and deploys by image digest through SSM.
 Maintainer: Omprakash Kasaraneni.
 
-**Status:** pipeline and scripts authored; real Jenkins builds, AWS releases
-and rollback verification remain pending. This repository does not install Jenkins.
+**Status:** Jenkins build #4 passed nine application tests, built and smoke-tested
+the image, published to ECR, and deployed a healthy release to EC2 through SSM
+after manual approval. Direct API health, create and list checks passed on EC2.
+Rollback and cleanup verification remain pending.
 
 ## Prerequisites
 
 A dedicated trusted Linux x86_64 Jenkins agent labeled `docker-aws` must have
 Docker, Git, Python 3.10+ and AWS CLI v2. Install Jenkins Pipeline and Git plugins.
 Configure this repository as Pipeline from SCM with script path `Jenkinsfile`.
-Use an EC2 agent role or another short-lived AWS credential provider.
+The verified setup runs the controller and a custom inbound agent on Docker Desktop.
+The agent image is defined in [agent/Dockerfile](agent/Dockerfile).
+Create a Jenkins **Username with password** credential with ID
+`aws-incident-deployer`: username = AWS access key ID, password = secret access key.
+Use the dedicated IAM deployment user's scoped permissions, not root credentials.
+The Jenkinsfile binds this credential only during publishing and deployment.
+For an EC2-hosted agent, prefer an instance role and adapt the credential bindings.
 The Terraform host role belongs to the deployment target, not the Jenkins agent.
 See [permissions](docs/permissions.md). Never run untrusted pull requests on an
 agent with Docker or deployment permissions.
@@ -67,3 +75,11 @@ deliberately, retaining rollback images. Central logging, alerts and automated
 backup/restore are future work. Save actual build logs, digests, health responses
 and rollback results; never claim measured savings or availability without data.
 See docs/validation.md for checks actually run.
+
+## Verified deployment evidence
+
+See the [validation record](docs/validation.md) and [screenshot gallery](docs/screenshots/README.md).
+
+![Jenkins release succeeded](docs/screenshots/08-aws-deployment-success.png)
+
+![EC2 API verification](docs/screenshots/11-ec2-api-verification.png)

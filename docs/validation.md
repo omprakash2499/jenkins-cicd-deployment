@@ -1,36 +1,56 @@
 # Validation record
 
-These checks were executed in the authoring workspace on Python 3.12:
+## Verified Jenkins and AWS execution
+
+Jenkins job: `incident-api-pipeline`. Release build: **#4**, result **SUCCESS**.
+Evidence consists of the actual Jenkins console output and uploaded screenshots.
 
 | Check | Result |
 | --- | --- |
-| Eight application unittest cases | PASS |
-| Create, list and resolve through a real local HTTP server | PASS |
-| HTTP smoke script against health and incident endpoints | PASS |
-| Persistence across application reinitialization | PASS, included in unittest |
-| Corrupt schema produces health 503 | PASS, included in unittest |
-| Invalid deploy target rejected before an AWS call | PASS |
-| Python syntax, shell scripts and embedded Jenkins shell syntax | PASS |
-| Compose YAML parsing and local-only port declaration | PASS |
-| Relative documentation links | PASS |
+| Inbound agent connected with label docker-aws | PASS |
+| Application checkout pinned to full commit SHA | PASS |
+| Nine application unit tests | PASS in build #4 (0.093 seconds) |
+| Linux amd64 Docker image build | PASS |
+| Container health and incident-list smoke test | PASS |
+| Scoped Jenkins credential binding and ECR login | PASS |
+| Immutable image tag published to ECR | PASS |
+| Manual release approval | PASS |
+| SSM deployment and target image pull by digest | PASS |
+| Candidate check and final release health | PASS |
+| EC2 container status | Healthy |
+| Direct EC2 GET /health | status=ok; version matches release digest |
+| Direct EC2 POST /incidents | Created incident #1, status=open |
+| Direct EC2 GET /incidents | Returned incident #1 |
+| Jenkins test-container and Docker-auth cleanup | PASS in console |
+| image.txt and deployment-result.json archived | PASS |
 
-Not executed: Docker image build, dependency installation, Gunicorn startup,
-Docker Compose validation/runtime, container persistence/recovery, Terraform
-fmt/validate/plan/apply/destroy, Jenkins Groovy validation and pipeline execution,
-AWS IAM/SSM integration, image scanning and deployment rollback. Docker and
-Terraform executables were unavailable, and no AWS deployment was attempted.
-The built-in local WSGI server verified HTTP application behavior, not Gunicorn.
+## Release identity
 
-Application cases: database-aware health; create/list/resolve/persist; invalid
-titles; invalid JSON/UTF-8; payload size; media type; missing IDs/routes; SQL
-strings treated as data. Container and cloud behavior remain explicit next gates.
+- Pipeline commit: `218b4ceef47d544c74fa010e55a1cb78c8cc9759`
+- Application commit: `192fadf35de4a8d9ae11f897a3999845b6100acc`
+- Image tag: `192fadf35de4a8d9ae11f897a3999845b6100acc-4`
+- Image digest: `sha256:ef010867d4157c0b8712b61ae45aa3901a9350bc99a83ed607d9fb2697c8b078`
+- AWS region: `us-east-1`
+- Test incident title: `Jenkins AWS deployment verified`
 
-No GitHub repositories were created or pushed. No cloud resources were created.
-Append actual execution evidence after running each environment-specific gate.
+## Earlier CI run
 
-## SQLite connection cleanup fix
+Build #1 rejected an empty APP_COMMIT before application tests.
+Build #3 passed all nine tests and Docker build/smoke checks with DEPLOY disabled;
+publish, approval and deployment stages were correctly skipped.
 
-Explicitly close application and test connections after transaction completion.
-Nine tests pass on Linux/Python 3.12, including a regression test that retains
-connection objects and verifies they are closed on successful and failed requests.
-Windows execution of the corrected code remains to be confirmed by the user.
+The nine tests cover invalid JSON, explicit connection closure, incident lifecycle
+and persistence, database-aware health, invalid titles, oversized requests,
+media type, missing routes/IDs, and SQL input handling.
+
+## Evidence and limits
+
+See the [screenshot gallery](screenshots/README.md). The CI stage screenshot is
+from build #3. Build #4 is evidenced by its summary, console and archived-artifact
+screenshots; direct runtime behavior is shown in the EC2 screenshot.
+
+Not yet verified: failed-release rollback, automatic restoration after a failed
+switch, AWS container replacement/reboot persistence, backup/restore, or cloud
+resource cleanup. The successful incident readback does not prove restart persistence.
+The deployment uses a single EC2 host and may incur a short outage during replacement.
+No availability or cost-reduction measurements are claimed.
