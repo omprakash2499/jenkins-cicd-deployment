@@ -67,7 +67,7 @@ An `incident-previous` residue blocks a later release for investigation.
 If Jenkins or the client times out, inspect the printed SSM command ID before
 retrying: the remote command may still be running.
 
-## Limits and evidence
+## Limitations and Deployment Verification
 
 ECR scan-on-push is informational; there is no vulnerability-threshold gate yet.
 Base image digests and transitive dependencies are not fully locked. Images are
